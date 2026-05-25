@@ -2,18 +2,18 @@ pipeline {
     agent any
 
     environment {
-        DOCKERHUB_CREDENTIALS = credentials('yourname-dockerhub-creds') //update credentials 
-        DOCKER_IMAGE = "docker-username/image-name"  // update docker image name
+        DOCKERHUB_CREDENTIALS = credentials('mithun-dockerhub-creds') //update credentials 
+        DOCKER_IMAGE = "mithunan600/mi-calculator"  // update docker image name
         IMAGE_TAG = "${BUILD_NUMBER}"
-        NAMESPACE = "yourname-ns"  // update namespace name
+        NAMESPACE = "mithunan600-ns"  // update namespace name
     }
 
     stages {
 
         stage('Clone Repository') {
             steps {
-                git url: 'your-repo-url', // update repository url
-                    branch: 'main' // update branch name
+                git url: 'https://github.com/Mithunan600/mi-calculator.git', // update repository url
+                    branch: 'master' // update branch name
             }
         }
 
