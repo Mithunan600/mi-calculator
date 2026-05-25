@@ -1,0 +1,13 @@
+node_modules
+build
+coverage
+.git
+.gitignore
+*.md
+.env
+.env.*
+npm-debug.log*
+.DS_Store
+terminals
+agent-transcripts
+k8s-deployment-generated.yaml

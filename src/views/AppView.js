@@ -1,10 +1,8 @@
 import React from 'react';
-import 'bootstrap/dist/css/bootstrap.min.css';
-import 'font-awesome/css/font-awesome.min.css'
+import 'font-awesome/css/font-awesome.min.css';
 import '../assets/styles/App.css';
 import Button from '../components/Button';
-
-var Parser = require('expr-eval').Parser;
+import { Parser } from 'expr-eval';
 
 class AppView extends React.Component {
 
@@ -15,9 +13,9 @@ state = {
     isResultInvalid: false
 }
 
-// undoClick = () => {
-//     console.log('undo something');
-// }
+undoClick = () => {
+    this.functionalButtonClick('C');
+}
 
 /**
  * digitClick
@@ -93,7 +91,7 @@ functionalButtonClick = (key) => {
 
             if(fullText.length > 0 ){
                 let newFullText = fullText.slice(0, -1);
-                if(newFullText == ""){
+                if(newFullText === ""){
                     newFullText = "0";
                 }
                 this.setState({ fullText : newFullText });
@@ -107,7 +105,7 @@ functionalButtonClick = (key) => {
             // Delete one by one character from fullText
             if(fullText.length > 0 ){
                 let newFullText = fullText.substring(1);
-                if(newFullText == ""){
+                if(newFullText === ""){
                     newFullText = "0";
                 }
                 this.setState({ fullText : newFullText });
@@ -251,114 +249,90 @@ componentWillUnmount(){
  * printResultTextCSS
  * @return { string } css of result span
  */
-printResultTextCSS = () => {
-    let css = "resultArea ";
-    let { fullText, resultText } = this.state;
-    let totalLength = fullText.length + resultText.length;
-    if(totalLength >= 0 && totalLength <= 18){
-        css = css + "resultArea-md";
-    }else if(totalLength > 18 && totalLength <= 35){
-        css = css + "resultArea-sm";
-    }else if(totalLength > 35 && totalLength <= 55){
-        css = css + "resultArea-xsm";
-    }else{
-        css = css + "resultArea-xxsm";
-    }
-    return css;
+getExpressionSizeClass = () => {
+    const { fullText, resultText } = this.state;
+    const totalLength = fullText.length + resultText.length;
+    if (totalLength <= 18) return 'calc-expression--md';
+    if (totalLength <= 35) return 'calc-expression--sm';
+    if (totalLength <= 55) return 'calc-expression--xsm';
+    return 'calc-expression--xxsm';
 }
 
   render() { 
     const { fullText, resultText, isResultInvalid } = this.state;
     return ( 
         <div className="App">
-            <div className="row justify-content-center">
-              <div className="col-md-5">
+            <main className="calc-app">
+                <header className="calc-app__header">
+                    <h1><span className="calc-app__brand">MI</span> Calculator</h1>
+                    <p className="calc-app__tagline">Scientific · Memory · Keyboard</p>
+                </header>
 
-                <div className="app-header">
-                    <span className="app-title">AJ</span> Calculator 
-                    <span className="badge badge-warning">React <small>js</small></span>
-                </div>
-
-                <div className="calculatorArea">
-                  <div className="row">
-                    
-                    <div className="col-md-12 calculator-header-part">
-                      <div className={this.printResultTextCSS()}>
-                        { fullText }
-
-                        { isResultInvalid && resultText.length > 0 &&
-                            <span className="text-danger">
-                                { ' = ' + resultText }
-                            </span>
-                        }
-
-                        { !isResultInvalid && resultText.length > 0 &&
-                            <span className="text-success">
-                                { ' = '+ resultText }
-                            </span>
-                        }
-                      </div>
+                <section className="calc-panel">
+                    <div className="calc-display">
+                        <div className={`calc-expression ${this.getExpressionSizeClass()}`}>
+                            {fullText}
+                        </div>
+                        {resultText.length > 0 && (
+                            <div className={`calc-result ${isResultInvalid ? 'calc-result--error' : 'calc-result--success'}`}>
+                                = {resultText}
+                            </div>
+                        )}
                     </div>
 
-                    <div className="col-md-12 calculator-body-part">
-                      <div className="row justify-content-center">
-                          <Button isIcon={'fa fa-undo'} buttonClass="btn btn-primary top-button" onClick={this.undoClick}/>
-                          <Button buttonClass="btn btn-primary top-button" isIcon={'fa fa-arrow-left'}  onClick={() => this.functionalButtonClick("CUT_FIRST")} />
-                          <Button buttonClass="btn btn-primary top-button  text-bold" onClick={() => this.functionalButtonClick("C")} textValue="C"/>
-                          <Button buttonClass="btn btn-primary top-button  text-bold" onClick={() => this.functionalButtonClick("AC")} textValue="AC"/>
+                    <div className="calc-keypad">
+                        <div className="calc-row calc-row--4">
+                            <Button isIcon="fa fa-undo" buttonClass="calc-btn--utility" onClick={this.undoClick} ariaLabel="Undo" />
+                            <Button isIcon="fa fa-arrow-left" buttonClass="calc-btn--utility" onClick={() => this.functionalButtonClick('CUT_FIRST')} ariaLabel="Delete first character" />
+                            <Button buttonClass="calc-btn--utility" onClick={() => this.functionalButtonClick('C')} textValue="C" />
+                            <Button buttonClass="calc-btn--utility" onClick={() => this.functionalButtonClick('AC')} textValue="AC" />
+                        </div>
 
-                      </div>
+                        <div className="calc-row calc-row--4">
+                            <Button buttonClass="calc-btn--memory" onClick={() => this.functionalButtonClick('MC')} textValue="mc" />
+                            <Button buttonClass="calc-btn--memory" onClick={() => this.functionalButtonClick('M+')} textValue="m+" />
+                            <Button buttonClass="calc-btn--memory" onClick={() => this.functionalButtonClick('M-')} textValue="m-" />
+                            <Button buttonClass="calc-btn--memory" onClick={() => this.functionalButtonClick('MR')} textValue="mr" />
+                        </div>
 
-                      <div className="row justify-content-center mt-2">
-                          <Button buttonClass="btn btn-success btn-mem text-bold" onClick={() => this.functionalButtonClick('MC')} textValue="mc"/>
-                          <Button buttonClass="btn btn-success btn-mem text-bold" onClick={() => this.functionalButtonClick('M+')} textValue="m+"/>
-                          <Button buttonClass="btn btn-success btn-mem text-bold" onClick={() => this.functionalButtonClick('M-')} textValue="m-"/>
-                          <Button buttonClass="btn btn-success btn-mem text-bold" onClick={() => this.functionalButtonClick('MR')} textValue="mr"/>
-                      </div>
+                        <div className="calc-row">
+                            <Button buttonClass="calc-btn--digit" onClick={() => this.digitClick(7)} textValue="7" />
+                            <Button buttonClass="calc-btn--digit" onClick={() => this.digitClick(8)} textValue="8" />
+                            <Button buttonClass="calc-btn--digit" onClick={() => this.digitClick(9)} textValue="9" />
+                            <Button buttonClass="calc-btn--operator" onClick={() => this.operationClick('/')} textValue="÷" />
+                            <Button buttonClass="calc-btn--operator" onClick={() => this.functionalButtonClick('SQ_ROOT')} textValue="√" />
+                        </div>
 
-                      
-                      <div className="row justify-content-center mt-2">
-                          <Button buttonClass="btn btn-primary btn-digit-operation btn-digit text-bold" onClick={() => this.digitClick(7)} textValue="7"/>
-                          <Button buttonClass="btn btn-primary btn-digit-operation btn-digit text-bold" onClick={() => this.digitClick(8)} textValue="8"/>
-                          <Button buttonClass="btn btn-primary btn-digit-operation btn-digit text-bold" onClick={() => this.digitClick(9)} textValue="9"/>
-                          <Button buttonClass="btn btn-primary btn-digit-operation btn-operation text-bold" onClick={() => this.operationClick('/')} textValue="÷"/>
-                          <Button buttonClass="btn btn-primary btn-digit-operation btn-operation text-bold" textValue="√"  onClick={() => this.functionalButtonClick("SQ_ROOT")} />
-                      </div>
+                        <div className="calc-row">
+                            <Button buttonClass="calc-btn--digit" onClick={() => this.digitClick(4)} textValue="4" />
+                            <Button buttonClass="calc-btn--digit" onClick={() => this.digitClick(5)} textValue="5" />
+                            <Button buttonClass="calc-btn--digit" onClick={() => this.digitClick(6)} textValue="6" />
+                            <Button buttonClass="calc-btn--operator" onClick={() => this.operationClick('*')} textValue="×" />
+                            <Button buttonClass="calc-btn--operator" onClick={() => this.functionalButtonClick('x^2')} textValue="x²" />
+                        </div>
 
-                      <div className="row justify-content-center mt-2">
-                          <Button buttonClass="btn btn-primary btn-digit-operation btn-digit text-bold" onClick={() => this.digitClick(4)} textValue="4"/>
-                          <Button buttonClass="btn btn-primary btn-digit-operation btn-digit text-bold" onClick={() => this.digitClick(5)} textValue="5"/>
-                          <Button buttonClass="btn btn-primary btn-digit-operation btn-digit text-bold" onClick={() => this.digitClick(6)} textValue="6"/>
-                          <Button buttonClass="btn btn-primary btn-digit-operation btn-operation text-bold" onClick={() => this.operationClick('*')} textValue="×"/>
-                          <Button buttonClass="btn btn-primary btn-digit-operation btn-operation text-bold" onClick={() => this.functionalButtonClick('x^2')} textValue="x^2"/>
-                      </div>
+                        <div className="calc-row">
+                            <Button buttonClass="calc-btn--digit" onClick={() => this.digitClick(1)} textValue="1" />
+                            <Button buttonClass="calc-btn--digit" onClick={() => this.digitClick(2)} textValue="2" />
+                            <Button buttonClass="calc-btn--digit" onClick={() => this.digitClick(3)} textValue="3" />
+                            <Button buttonClass="calc-btn--operator" onClick={() => this.operationClick('-')} textValue="−" />
+                            <Button buttonClass="calc-btn--operator" onClick={() => this.functionalButtonClick('1/x')} textValue="¹⁄ₓ" />
+                        </div>
 
-                      <div className="row justify-content-center mt-2">
-                          <Button buttonClass="btn btn-primary btn-digit-operation btn-digit text-bold" onClick={() => this.digitClick(1)} textValue="1"/>
-                          <Button buttonClass="btn btn-primary btn-digit-operation btn-digit text-bold" onClick={() => this.digitClick(2)} textValue="2"/>
-                          <Button buttonClass="btn btn-primary btn-digit-operation btn-digit text-bold" onClick={() => this.digitClick(3)} textValue="3"/>
-                          <Button buttonClass="btn btn-primary btn-digit-operation btn-operation text-bold" onClick={() => this.operationClick('-')} textValue="-"/>
-                          <Button buttonClass="btn btn-primary btn-digit-operation btn-operation text-bold" onClick={() => this.functionalButtonClick('1/x')} textValue="1/x"/>
-                      </div>
-
-                      <div className="row justify-content-center mt-2">
-                        <Button buttonClass="btn btn-primary btn-digit-operation btn-digit text-bold" onClick={() => this.digitClick(0)} textValue="0"/>
-                        <Button buttonClass="btn btn-primary btn-digit-operation btn-operation text-bold" onClick={() => this.dotClick()} textValue="."/>
-                        <Button buttonClass="btn btn-primary btn-digit-operation btn-operation text-bold" onClick={() => this.functionalButtonClick('+-')} textValue="±"/>
-                        <Button buttonClass="btn btn-primary btn-digit-operation btn-operation text-bold" onClick={() => this.operationClick('+')} textValue="+"/>
-                        <Button buttonClass="btn btn-primary btn-digit-operation btn-equal text-bold" onClick={() => this.equalClick()} textValue="="/>
-                      </div>
-
+                        <div className="calc-row">
+                            <Button buttonClass="calc-btn--digit" onClick={() => this.digitClick(0)} textValue="0" />
+                            <Button buttonClass="calc-btn--operator" onClick={() => this.dotClick()} textValue="." />
+                            <Button buttonClass="calc-btn--operator" onClick={() => this.functionalButtonClick('+-')} textValue="±" />
+                            <Button buttonClass="calc-btn--operator" onClick={() => this.operationClick('+')} textValue="+" />
+                            <Button buttonClass="calc-btn--equal" onClick={() => this.equalClick()} textValue="=" />
+                        </div>
                     </div>
+                </section>
 
-                  </div>
-                </div>
-                
-                <p className="copy-right text-right">
-                    &copy; 2020, <a href="https://github.com/ManiruzzamanAkash" target="_blank">Maniruzzaman Akash </a>
-                </p>
-            </div>
-            </div>
+                <footer className="calc-app__footer">
+                    &copy; 2026, <a href="https://github.com/Mithunan600" target="_blank" rel="noreferrer">Mithun A N</a>
+                </footer>
+            </main>
         </div>
      );
   }
